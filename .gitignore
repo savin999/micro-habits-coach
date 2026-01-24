@@ -1,0 +1,14 @@
+# Maven
+target/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# IntelliJ
+.idea/
+
+# Java
+*.class
