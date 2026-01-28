@@ -259,4 +259,25 @@ public class HomeView {
         a.setContentText(message);
         a.showAndWait();
     }
+    public void loadOnStartup() {
+        runInBackground(
+                "Loading...",
+                () -> {
+                    List<Habit> loaded = storage.load();
+                    habitService.replaceAll(loaded);
+                    return null;
+                },
+                this::refreshCards
+        );
+    }
+
+    public void saveOnExit() {
+        try {
+            storage.save(habitService.getHabitsReadOnly());
+        } catch (Exception ex) {
+            // Avoid blocking app exit with dialogs. Print for evidence/log.
+            System.err.println("Auto-save failed: " + ex.getMessage());
+        }
+    }
+
 }

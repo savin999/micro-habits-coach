@@ -26,6 +26,13 @@ public class Main extends Application {
 
         stage.setTitle("Micro-Habits Coach");
         stage.setScene(scene);
+
+        // Auto-load when the UI is ready
+        homeView.loadOnStartup();
+
+        // Auto-save when user closes the app
+        stage.setOnCloseRequest(e -> homeView.saveOnExit());
+
         stage.show();
     }
 
