@@ -1,11 +1,20 @@
 package com.savin.microhabits.ui;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 import java.util.Optional;
 
+/**
+ * Dialog for creating a new habit.
+ */
 public class AddHabitDialog extends Dialog<AddHabitDialog.Result> {
 
     public record Result(String name, String description) {}
@@ -36,13 +45,13 @@ public class AddHabitDialog extends Dialog<AddHabitDialog.Result> {
 
         getDialogPane().setContent(grid);
 
-        // Disable Create button until name is valid
-        var okButton = getDialogPane().lookupButton(createBtn);
+        // Enable Create only when a name is entered
+        Button okButton = (Button) getDialogPane().lookupButton(createBtn);
         okButton.setDisable(true);
 
-        nameField.textProperty().addListener((obs, oldV, newV) -> {
-            okButton.setDisable(newV == null || newV.trim().isEmpty());
-        });
+        nameField.textProperty().addListener((obs, oldV, newV) ->
+                okButton.setDisable(newV == null || newV.trim().isEmpty())
+        );
 
         setResultConverter(btn -> {
             if (btn == createBtn) {

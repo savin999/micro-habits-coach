@@ -2,9 +2,18 @@ package com.savin.microhabits.ui;
 
 import com.savin.microhabits.model.Habit;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+/**
+ * Dialog for editing an existing habit.
+ */
 public class EditHabitDialog extends Dialog<EditHabitDialog.Result> {
 
     public record Result(String name, String description) {}
@@ -32,7 +41,8 @@ public class EditHabitDialog extends Dialog<EditHabitDialog.Result> {
 
         getDialogPane().setContent(grid);
 
-        var okButton = getDialogPane().lookupButton(saveBtn);
+        // Disable Save if the name is empty
+        Button okButton = (Button) getDialogPane().lookupButton(saveBtn);
         okButton.setDisable(nameField.getText().trim().isEmpty());
 
         nameField.textProperty().addListener((obs, oldV, newV) ->
@@ -41,7 +51,10 @@ public class EditHabitDialog extends Dialog<EditHabitDialog.Result> {
 
         setResultConverter(btn -> {
             if (btn == saveBtn) {
-                return new Result(nameField.getText().trim(), descField.getText().trim());
+                return new Result(
+                        nameField.getText().trim(),
+                        descField.getText().trim()
+                );
             }
             return null;
         });

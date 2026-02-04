@@ -7,8 +7,20 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
@@ -17,6 +29,9 @@ import javafx.scene.text.Text;
 
 import java.util.List;
 
+/**
+ * Main UI view for managing habits.
+ */
 public class HomeView {
 
     private final HabitService habitService;
@@ -25,7 +40,6 @@ public class HomeView {
     private final VBox cardsBox = new VBox(12);
     private final Label emptyLabel = new Label("No habits yet. Click Add Habit to start");
 
-    // overlay
     private final StackPane rootStack = new StackPane();
     private final VBox overlay = new VBox(10);
     private final ProgressIndicator spinner = new ProgressIndicator();
@@ -38,8 +52,6 @@ public class HomeView {
     }
 
     public Parent create() {
-
-        /* ---------- HEADER ---------- */
         Label title = new Label("Micro-Habits Coach");
         title.getStyleClass().add("title");
 
@@ -57,7 +69,6 @@ public class HomeView {
         header.setAlignment(Pos.CENTER_LEFT);
         header.getStyleClass().add("header");
 
-        /* ---------- CARD LIST ---------- */
         cardsBox.getStyleClass().add("cards");
         emptyLabel.getStyleClass().add("muted");
 
@@ -68,22 +79,11 @@ public class HomeView {
         VBox content = new VBox(14, header, scroll);
         content.setPadding(new Insets(18));
         content.getStyleClass().add("root");
-        
-        // Add beautiful gradient background using JavaFX LinearGradient
-        LinearGradient gradient = new LinearGradient(
-            0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-            new Stop(0, Color.web("#667eea")),
-            new Stop(0.5, Color.web("#764ba2")),
-            new Stop(1, Color.web("#f093fb"))
-        );
-        
-        Background background = new Background(new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY));
-        content.setBackground(background);
+        content.setBackground(createGradientBackground());
 
         rootStack.getChildren().setAll(content, overlay);
         StackPane.setAlignment(overlay, Pos.CENTER);
 
-        /* ---------- ACTIONS ---------- */
         addBtn.setOnAction(e -> {
             AddHabitDialog dialog = new AddHabitDialog();
             dialog.showAndWait().ifPresent(result -> {
@@ -115,6 +115,16 @@ public class HomeView {
         return rootStack;
     }
 
+    private Background createGradientBackground() {
+        LinearGradient gradient = new LinearGradient(
+                0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#667eea")),
+                new Stop(0.5, Color.web("#764ba2")),
+                new Stop(1, Color.web("#f093fb"))
+        );
+        return new Background(new BackgroundFill(gradient, CornerRadii.EMPTY, Insets.EMPTY));
+    }
+
     private void refreshCards() {
         cardsBox.getChildren().clear();
 
@@ -129,7 +139,6 @@ public class HomeView {
     }
 
     private Parent createHabitCard(Habit habit) {
-
         Label name = new Label(habit.getName());
         name.getStyleClass().add("card-title");
 
@@ -193,8 +202,6 @@ public class HomeView {
         return card;
     }
 
-    /* ---------------- Concurrency + Exception Evidence ---------------- */
-
     private void runInBackground(String message, BackgroundWork work, Runnable onSuccessUi) {
         overlayText.setText(message);
         setOverlayVisible(true);
@@ -202,9 +209,8 @@ public class HomeView {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // Small delay makes the progress indicator visible for screenshots
-                Thread.sleep(600);
-                work.run(); // may throw IOException, etc.
+                Thread.sleep(600); // makes the overlay visible for demos/screenshots
+                work.run();
                 return null;
             }
         };
@@ -259,6 +265,7 @@ public class HomeView {
         a.setContentText(message);
         a.showAndWait();
     }
+
     public void loadOnStartup() {
         runInBackground(
                 "Loading...",
@@ -275,9 +282,7 @@ public class HomeView {
         try {
             storage.save(habitService.getHabitsReadOnly());
         } catch (Exception ex) {
-            // Avoid blocking app exit with dialogs. Print for evidence/log.
             System.err.println("Auto-save failed: " + ex.getMessage());
         }
     }
-
 }

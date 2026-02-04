@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.nio.file.Path;
+//Application entry point
 
 public class Main extends Application {
 
